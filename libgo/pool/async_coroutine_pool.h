@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../common/config.h"
 #include "../common/spinlock.h"
 #include "../sync/channel.h"
@@ -11,17 +11,17 @@ namespace co {
 class AsyncCoroutinePool
 {
 public:
-    static AsyncCoroutinePool* Create(size_t maxCallbackPoints = 128);
+    DLL_CLASS_DECL static AsyncCoroutinePool* Create(size_t maxCallbackPoints = 128);
 
     typedef std::function<void()> Func;
 
     // 初始化协程数量
-    void InitCoroutinePool(size_t maxCoroutineCount);
+    DLL_CLASS_DECL void InitCoroutinePool(size_t maxCoroutineCount);
 
     // 启动协程池 
-    void Start(int minThreadNumber, int maxThreadNumber = 0);
+    DLL_CLASS_DECL void Start(int minThreadNumber, int maxThreadNumber = 0);
 
-    void Post(Func const& func, Func const& callback);
+    DLL_CLASS_DECL void Post(Func const& func, Func const& callback);
 
     template <typename R>
     void Post(Channel<R> const& ret, std::function<R()> const& func) {
@@ -41,7 +41,7 @@ public:
     // 触发点
     struct CallbackPoint
     {
-        size_t Run(size_t maxTrigger = 0);
+        DLL_CLASS_DECL size_t Run(size_t maxTrigger = 0);
 
         void SetNotifyFunc(Func const& notify);
 
@@ -60,7 +60,7 @@ public:
     // 绑定回调函数触发点, 可以绑定多个触发点, 轮流使用.
     // 如果不绑定触发点, 则回调函数直接在协程池的工作线程中触发.
     // 线程安全接口
-    bool AddCallbackPoint(CallbackPoint * point);
+    DLL_CLASS_DECL bool AddCallbackPoint(CallbackPoint * point);
 
 private:
     AsyncCoroutinePool(size_t maxCallbackPoints);

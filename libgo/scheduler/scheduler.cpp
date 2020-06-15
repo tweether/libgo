@@ -1,4 +1,4 @@
-#include "scheduler.h"
+﻿#include "scheduler.h"
 #include "../common/error.h"
 #include "../common/clock.h"
 #include <stdio.h>
@@ -10,6 +10,10 @@
 
 namespace co
 {
+Scheduler &Scheduler::getInstance() {
+  static Scheduler obj;
+  return obj;
+}
 
 inline atomic_t<unsigned long long> & GetTaskIdFactory()
 {

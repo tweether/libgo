@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "common/config.h"
 #include "common/pp.h"
 #include "common/syntax_helper.h"

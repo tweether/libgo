@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../common/config.h"
 #include "../common/deque.h"
 #include "../common/spinlock.h"
@@ -26,12 +26,12 @@ class Scheduler
     friend class Processer;
 
 public:
-    ALWAYS_INLINE static Scheduler& getInstance();
+    DLL_CLASS_DECL static Scheduler &getInstance();
 
     static Scheduler* Create();
 
     // 创建一个协程
-    void CreateTask(TaskF const& fn, TaskOpt const& opt);
+    DLL_CLASS_DECL void CreateTask(TaskF const &fn, TaskOpt const &opt);
 
     // 当前是否处于协程中
     bool IsCoroutine();
@@ -44,14 +44,14 @@ public:
     // @maxThreadNumber : 最大调度线程数, 为0时, 设置为minThreadNumber.
     //          如果maxThreadNumber大于minThreadNumber, 则当协程产生长时间阻塞时,
     //          可以自动扩展调度线程数.
-    void Start(int minThreadNumber = 1, int maxThreadNumber = 0);
+    DLL_CLASS_DECL void Start(int minThreadNumber = 1, int maxThreadNumber = 0);
     void goStart(int minThreadNumber = 1, int maxThreadNumber = 0);
     static const int s_ulimitedMaxThreadNumber = 40960;
 
     // 停止调度 
     // 注意: 停止后无法恢复, 仅用于安全退出main函数, 不保证终止所有线程.
     //       如果某个调度线程被协程阻塞, 必须等待阻塞结束才能退出.
-    void Stop();
+    DLL_CLASS_DECL void Stop();
 
     // 使用独立的定时器线程
     void UseAloneTimerThread();
@@ -78,8 +78,8 @@ public:
     static bool& IsExiting();
 
 private:
-    Scheduler();
-    ~Scheduler();
+    DLL_CLASS_DECL Scheduler();
+    DLL_CLASS_DECL ~Scheduler();
 
     Scheduler(Scheduler const&) = delete;
     Scheduler(Scheduler &&) = delete;
@@ -126,13 +126,3 @@ private:
 } //namespace co
 
 #define g_Scheduler ::co::Scheduler::getInstance()
-
-namespace co
-{
-    ALWAYS_INLINE Scheduler& Scheduler::getInstance()
-    {
-        static Scheduler obj;
-        return obj;
-    }
-
-} //namespace co

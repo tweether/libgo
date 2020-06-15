@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 #include "../../common/config.h"
 #include "../../common/error.h"
 #include <WinSock2.h>
 #include <Windows.h>
 #include "../fcontext.h"
+#include "../../common/dllExporter.h"
 
 namespace co {
 
@@ -18,11 +19,7 @@ namespace co {
             ConvertFiberToThread();
             GetTlsContext() = nullptr;
         }
-        static void*& GetTlsContext()
-        {
-            static thread_local void* native = nullptr;
-            return native;
-        }
+        DLL_CLASS_DECL static void*& GetTlsContext();
     };
 
     class Context

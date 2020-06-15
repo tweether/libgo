@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../common/config.h"
 #include "fcontext.h"
 
@@ -49,11 +49,7 @@ public:
         jump_fcontext(&ctx_, GetTlsContext(), 0);
     }
 
-    fcontext_t& GetTlsContext()
-    {
-        static thread_local fcontext_t tls_context;
-        return tls_context;
-    }
+    DLL_CLASS_DECL fcontext_t& GetTlsContext();
 
 private:
     fcontext_t ctx_;

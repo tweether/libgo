@@ -1,4 +1,4 @@
-#include "config.h"
+﻿#include "config.h"
 #include "../context/fcontext.h"
 #include "../scheduler/processer.h"
 #include <string.h>
@@ -52,6 +52,11 @@ CoroutineOptions::CoroutineOptions()
     stack_malloc_fn(StackTraits::MallocFunc()),
     stack_free_fn(StackTraits::FreeFunc())
 {
+}
+
+CoroutineOptions &CoroutineOptions::getInstance() {
+  static CoroutineOptions obj;
+  return obj;
 }
 
 const char* BaseFile(const char* file)

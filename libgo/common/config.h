@@ -1,5 +1,6 @@
-#pragma once
+ï»¿#pragma once
 #include "cmake_config.h"
+#include "dllExporter.h"
 #include <unordered_map>
 #include <list>
 #include <errno.h>
@@ -35,7 +36,7 @@
 # define LIBGO_SYS_Windows 1
 #endif
 
-// VS2013²»Ö§³Öthread_local
+// VS2013ä¸æ”¯æŒthread_local
 #if defined(_MSC_VER) && _MSC_VER < 1900
 # define thread_local __declspec(thread)
 #endif
@@ -112,73 +113,69 @@ static const uint64_t dbg_thread            = 0x1 << 17;
 static const uint64_t dbg_sys_max           = dbg_debugger;
 ///-------------------
 
-// Ğ­³ÌÖĞÅ×³öÎ´²¶»ñÒì³£Ê±µÄ´¦Àí·½Ê½
+// åç¨‹ä¸­æŠ›å‡ºæœªæ•è·å¼‚å¸¸æ—¶çš„å¤„ç†æ–¹å¼
 enum class eCoExHandle : uint8_t
 {
-    immedaitely_throw,  // Á¢¼´Å×³ö
-    on_listener,        // Ê¹ÓÃlistener´¦Àí, Èç¹ûÃ»ÉèÖÃlistenerÔòÁ¢¿ÌÅ×³ö
+    immedaitely_throw,  // ç«‹å³æŠ›å‡º
+    on_listener,        // ä½¿ç”¨listenerå¤„ç†, å¦‚æœæ²¡è®¾ç½®listeneråˆ™ç«‹åˆ»æŠ›å‡º
 };
 
 typedef void*(*stack_malloc_fn_t)(size_t size);
 typedef void(*stack_free_fn_t)(void *ptr);
 
-///---- ÅäÖÃÑ¡Ïî
+///---- é…ç½®é€‰é¡¹
 struct CoroutineOptions
 {
     /*********************** Debug options **********************/
-    // µ÷ÊÔÑ¡Ïî, ÀıÈç: dbg_switch »ò dbg_hook|dbg_task|dbg_wait
+    // è°ƒè¯•é€‰é¡¹, ä¾‹å¦‚: dbg_switch æˆ– dbg_hook|dbg_task|dbg_wait
     uint64_t debug = 0;            
 
-    // µ÷ÊÔĞÅÏ¢Êä³öÎ»ÖÃ£¬¸ÄĞ´Õâ¸öÅäÖÃÏî¿ÉÒÔÖØ¶¨ÏòÊä³öÎ»ÖÃ
+    // è°ƒè¯•ä¿¡æ¯è¾“å‡ºä½ç½®ï¼Œæ”¹å†™è¿™ä¸ªé…ç½®é¡¹å¯ä»¥é‡å®šå‘è¾“å‡ºä½ç½®
     FILE* debug_output = stdout;   
     /************************************************************/
 
     /**************** Stack and Exception options ***************/
-    // Ğ­³ÌÖĞÅ×³öÎ´²¶»ñÒì³£Ê±µÄ´¦Àí·½Ê½
+    // åç¨‹ä¸­æŠ›å‡ºæœªæ•è·å¼‚å¸¸æ—¶çš„å¤„ç†æ–¹å¼
     eCoExHandle exception_handle = eCoExHandle::immedaitely_throw;
 
-    // Ğ­³ÌÕ»´óĞ¡ÉÏÏŞ, Ö»»áÓ°ÏìÔÚ´ËÖµÉèÖÃÖ®ºóĞÂ´´½¨µÄP, ½¨ÒéÔÚÊ×´ÎRunÇ°ÉèÖÃ.
-    // stack_size½¨ÒéÉèÖÃ²»³¬¹ı1MB
-    // LinuxÏµÍ³ÏÂ, ÉèÖÃ2MBµÄstack_size»áµ¼ÖÂÌá½»ÄÚ´æµÄÊ¹ÓÃÁ¿±È1MBµÄstack_size¶à10±¶.
+    // åç¨‹æ ˆå¤§å°ä¸Šé™, åªä¼šå½±å“åœ¨æ­¤å€¼è®¾ç½®ä¹‹åæ–°åˆ›å»ºçš„P, å»ºè®®åœ¨é¦–æ¬¡Runå‰è®¾ç½®.
+    // stack_sizeå»ºè®®è®¾ç½®ä¸è¶…è¿‡1MB
+    // Linuxç³»ç»Ÿä¸‹, è®¾ç½®2MBçš„stack_sizeä¼šå¯¼è‡´æäº¤å†…å­˜çš„ä½¿ç”¨é‡æ¯”1MBçš„stack_sizeå¤š10å€.
     uint32_t stack_size = 1 * 1024 * 1024; 
     /************************************************************/
 
-    // epollÃ¿´Î´¥·¢µÄeventÊıÁ¿(WindowsÏÂÎŞĞ§)
+    // epollæ¯æ¬¡è§¦å‘çš„eventæ•°é‡(Windowsä¸‹æ— æ•ˆ)
     uint32_t epoll_event_size = 10240;
 
-    // ÊÇ·ñÆôÓÃĞ­³ÌÍ³¼Æ¹¦ÄÜ(»áÓĞÒ»µãĞÔÄÜËğºÄ, Ä¬ÈÏ²»¿ªÆô)
+    // æ˜¯å¦å¯ç”¨åç¨‹ç»Ÿè®¡åŠŸèƒ½(ä¼šæœ‰ä¸€ç‚¹æ€§èƒ½æŸè€—, é»˜è®¤ä¸å¼€å¯)
     bool enable_coro_stat = false;
 
-    // µ¥Ğ­³ÌÖ´ĞĞ³¬Ê±Ê±³¤(µ¥Î»£ºÎ¢Ãë) (³¬¹ıÊ±³¤»áÇ¿ÖÆstealÊ£ÓàÈÎÎñ, ÅÉ·¢µ½ÆäËûÏß³Ì)
+    // å•åç¨‹æ‰§è¡Œè¶…æ—¶æ—¶é•¿(å•ä½ï¼šå¾®ç§’) (è¶…è¿‡æ—¶é•¿ä¼šå¼ºåˆ¶stealå‰©ä½™ä»»åŠ¡, æ´¾å‘åˆ°å…¶ä»–çº¿ç¨‹)
     uint32_t cycle_timeout_us = 100 * 1000; 
 
-    // µ÷¶ÈÏß³ÌµÄ´¥·¢ÆµÂÊ(µ¥Î»£ºÎ¢Ãë)
+    // è°ƒåº¦çº¿ç¨‹çš„è§¦å‘é¢‘ç‡(å•ä½ï¼šå¾®ç§’)
     uint32_t dispatcher_thread_cycle_us = 1000; 
 
-    // Õ»¶¥ÉèÖÃ±£»¤ÄÚ´æ¶ÎµÄÄÚ´æÒ³ÊıÁ¿(½ölinuxÏÂÓĞĞ§)(Ä¬ÈÏÎª0, ¼´:²»ÉèÖÃ)
-    // ÔÚÕ»¶¥ÄÚ´æ¶ÔÆëºóµÄÇ°¼¸Ò³ÉèÖÃÎªprotectÊôĞÔ.
-    // ËùÒÔ¿ªÆô´ËÑ¡ÏîÊ±, stack_size²»ÄÜÉÙÓÚprotect_stack_page+1Ò³
+    // æ ˆé¡¶è®¾ç½®ä¿æŠ¤å†…å­˜æ®µçš„å†…å­˜é¡µæ•°é‡(ä»…linuxä¸‹æœ‰æ•ˆ)(é»˜è®¤ä¸º0, å³:ä¸è®¾ç½®)
+    // åœ¨æ ˆé¡¶å†…å­˜å¯¹é½åçš„å‰å‡ é¡µè®¾ç½®ä¸ºprotectå±æ€§.
+    // æ‰€ä»¥å¼€å¯æ­¤é€‰é¡¹æ—¶, stack_sizeä¸èƒ½å°‘äºprotect_stack_page+1é¡µ
     int & protect_stack_page;
 
-    // ÉèÖÃÕ»ÄÚ´æ¹ÜÀí(malloc/free)
-    // Ê¹ÓÃfiber×öĞ­³Ìµ×²ãÊ±ÎŞĞ§
+    // è®¾ç½®æ ˆå†…å­˜ç®¡ç†(malloc/free)
+    // ä½¿ç”¨fiberåšåç¨‹åº•å±‚æ—¶æ— æ•ˆ
     stack_malloc_fn_t & stack_malloc_fn;
     stack_free_fn_t & stack_free_fn;
 
-    CoroutineOptions();
+    DLL_CLASS_DECL CoroutineOptions();
 
-    ALWAYS_INLINE static CoroutineOptions& getInstance()
-    {
-        static CoroutineOptions obj;
-        return obj;
-    }
+    DLL_CLASS_DECL static CoroutineOptions &getInstance();
 };
 
-int GetCurrentProcessID();
-int GetCurrentThreadID();
-int GetCurrentCoroID();
-std::string GetCurrentTimeStr();
-const char* BaseFile(const char* file);
+DLL_CLASS_DECL int GetCurrentProcessID();
+DLL_CLASS_DECL int GetCurrentThreadID();
+DLL_CLASS_DECL int GetCurrentCoroID();
+DLL_CLASS_DECL std::string GetCurrentTimeStr();
+DLL_CLASS_DECL const char *BaseFile(const char *file);
 const char* PollEvent2Str(short int event);
 unsigned long NativeThreadID();
 
@@ -218,7 +215,7 @@ private:
     bool restored_;
 };
 
-extern std::mutex gDbgLock;
+DLL_CLASS_DECL extern std::mutex gDbgLock;
 
 } //namespace co
 
