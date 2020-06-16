@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../common/config.h"
 #include "channel_impl.h"
 #include "ringbuffer.h"
@@ -182,7 +182,12 @@ public:
     ~LockedChannelImpl() {
         DebugPrint(dbg_mask_ & dbg_channel, "[id=%ld] Channel destory.", this->getId());
 
-        assert(lock_.try_lock());
+        bool tl = lock_.try_lock();
+        if (tl)
+        {
+            lock_.unlock();
+        }
+        assert(tl);
     }
 
     void SetDbgMask(uint64_t mask) {
