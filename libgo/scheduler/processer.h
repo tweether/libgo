@@ -64,17 +64,17 @@ private:
 public:
     ALWAYS_INLINE int Id() { return id_; }
 
-    DLL_CLASS_DECL static Processer *&GetCurrentProcesser();
+    LIBGO_CLASS_DECL static Processer *&GetCurrentProcesser();
 
-    DLL_CLASS_DECL static Scheduler *GetCurrentScheduler();
+    LIBGO_CLASS_DECL static Scheduler *GetCurrentScheduler();
 
     inline Scheduler* GetScheduler() { return scheduler_; }
 
     // 获取当前正在执行的协程
-    DLL_CLASS_DECL static Task *GetCurrentTask();
+    LIBGO_CLASS_DECL static Task *GetCurrentTask();
 
     // 是否在协程中
-    DLL_CLASS_DECL static bool IsCoroutine();
+    LIBGO_CLASS_DECL static bool IsCoroutine();
 
     // 协程切出
     ALWAYS_INLINE static void StaticCoYield();
@@ -102,17 +102,17 @@ public:
     };
 
     // 挂起当前协程
-    DLL_CLASS_DECL static SuspendEntry Suspend();
+    LIBGO_CLASS_DECL static SuspendEntry Suspend();
 
     // 挂起当前协程, 并在指定时间后自动唤醒
-    DLL_CLASS_DECL static SuspendEntry Suspend(FastSteadyClock::duration dur);
-    DLL_CLASS_DECL static SuspendEntry Suspend(FastSteadyClock::time_point timepoint);
+    LIBGO_CLASS_DECL static SuspendEntry Suspend(FastSteadyClock::duration dur);
+    LIBGO_CLASS_DECL static SuspendEntry Suspend(FastSteadyClock::time_point timepoint);
 
     // 唤醒协程
-    DLL_CLASS_DECL static bool Wakeup(SuspendEntry const &entry, std::function<void()> const &functor = NULL);
+    LIBGO_CLASS_DECL static bool Wakeup(SuspendEntry const &entry, std::function<void()> const &functor = NULL);
 
     // 测试一个SuspendEntry是否还可能有效
-    DLL_CLASS_DECL static bool IsExpire(SuspendEntry const &entry);
+    LIBGO_CLASS_DECL static bool IsExpire(SuspendEntry const &entry);
 
     /// --------------------------------------
     // for friend class Scheduler

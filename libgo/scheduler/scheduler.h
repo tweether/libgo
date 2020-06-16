@@ -26,12 +26,12 @@ class Scheduler
     friend class Processer;
 
 public:
-    DLL_CLASS_DECL static Scheduler &getInstance();
+    LIBGO_CLASS_DECL static Scheduler &getInstance();
 
     static Scheduler* Create();
 
     // 创建一个协程
-    DLL_CLASS_DECL void CreateTask(TaskF const &fn, TaskOpt const &opt);
+    LIBGO_CLASS_DECL void CreateTask(TaskF const &fn, TaskOpt const &opt);
 
     // 当前是否处于协程中
     bool IsCoroutine();
@@ -44,14 +44,14 @@ public:
     // @maxThreadNumber : 最大调度线程数, 为0时, 设置为minThreadNumber.
     //          如果maxThreadNumber大于minThreadNumber, 则当协程产生长时间阻塞时,
     //          可以自动扩展调度线程数.
-    DLL_CLASS_DECL void Start(int minThreadNumber = 1, int maxThreadNumber = 0);
+    LIBGO_CLASS_DECL void Start(int minThreadNumber = 1, int maxThreadNumber = 0);
     void goStart(int minThreadNumber = 1, int maxThreadNumber = 0);
     static const int s_ulimitedMaxThreadNumber = 40960;
 
     // 停止调度 
     // 注意: 停止后无法恢复, 仅用于安全退出main函数, 不保证终止所有线程.
     //       如果某个调度线程被协程阻塞, 必须等待阻塞结束才能退出.
-    DLL_CLASS_DECL void Stop();
+    LIBGO_CLASS_DECL void Stop();
 
     // 使用独立的定时器线程
     void UseAloneTimerThread();
@@ -78,8 +78,8 @@ public:
     static bool& IsExiting();
 
 private:
-    DLL_CLASS_DECL Scheduler();
-    DLL_CLASS_DECL ~Scheduler();
+    LIBGO_CLASS_DECL Scheduler();
+    LIBGO_CLASS_DECL ~Scheduler();
 
     Scheduler(Scheduler const&) = delete;
     Scheduler(Scheduler &&) = delete;

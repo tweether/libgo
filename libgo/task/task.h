@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 #include "../common/config.h"
 #include "../common/ts_queue.h"
 #include "../common/anys.h"
 #include "../context/context.h"
 #include "../debug/debugger.h"
+#include "../common/dllExporter.h"
 
 namespace co
 {
@@ -15,7 +16,7 @@ enum class TaskState
     done,
 };
 
-const char* GetTaskStateName(TaskState state);
+LIBGO_CLASS_DECL const char* GetTaskStateName(TaskState state);
 
 typedef std::function<void()> TaskF;
 
@@ -55,7 +56,7 @@ struct Task
         ctx_.SwapOut();
     }
 
-    const char* DebugInfo();
+    LIBGO_CLASS_DECL const char* DebugInfo();
 
 private:
     void Run();

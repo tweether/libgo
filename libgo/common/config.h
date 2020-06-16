@@ -166,16 +166,16 @@ struct CoroutineOptions
     stack_malloc_fn_t & stack_malloc_fn;
     stack_free_fn_t & stack_free_fn;
 
-    DLL_CLASS_DECL CoroutineOptions();
+    LIBGO_CLASS_DECL CoroutineOptions();
 
-    DLL_CLASS_DECL static CoroutineOptions &getInstance();
+    LIBGO_CLASS_DECL static CoroutineOptions &getInstance();
 };
 
-DLL_CLASS_DECL int GetCurrentProcessID();
-DLL_CLASS_DECL int GetCurrentThreadID();
-DLL_CLASS_DECL int GetCurrentCoroID();
-DLL_CLASS_DECL std::string GetCurrentTimeStr();
-DLL_CLASS_DECL const char *BaseFile(const char *file);
+LIBGO_CLASS_DECL int GetCurrentProcessID();
+LIBGO_CLASS_DECL int GetCurrentThreadID();
+LIBGO_CLASS_DECL int GetCurrentCoroID();
+LIBGO_CLASS_DECL std::string GetCurrentTimeStr();
+LIBGO_CLASS_DECL const char *BaseFile(const char *file);
 const char* PollEvent2Str(short int event);
 unsigned long NativeThreadID();
 
@@ -215,7 +215,7 @@ private:
     bool restored_;
 };
 
-DLL_CLASS_DECL extern std::mutex gDbgLock;
+LIBGO_CLASS_DECL extern std::mutex gDbgLock;
 
 } //namespace co
 

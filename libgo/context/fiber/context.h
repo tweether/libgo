@@ -19,7 +19,7 @@ namespace co {
             ConvertFiberToThread();
             GetTlsContext() = nullptr;
         }
-        DLL_CLASS_DECL static void*& GetTlsContext();
+        LIBGO_CLASS_DECL static void*& GetTlsContext();
     };
 
     class Context
