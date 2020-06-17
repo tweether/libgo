@@ -33,6 +33,7 @@ else()
     message ("  enable_hook: yes")
 endif()
 
+option(BUILD_DYNAMIC "build dynamic lib" OFF)
 if (BUILD_DYNAMIC)
     message ("  build dynamic lib: yes")
 else()
@@ -48,7 +49,7 @@ configure_file(${PROJECT_SOURCE_DIR}/libgo/common/cmake_config.h.in ${PROJECT_SO
 message("----------------------------------")
 
 if (UNIX)
-    set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC -fno-strict-aliasing -Wall ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC -fno-strict-aliasing -Wall -D_GLIBCXX_USE_CXX11_ABI=0 ${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
     set(CMAKE_CXX_FLAGS_MINSIZEREL "-O3 -DNDEBUG")
@@ -117,6 +118,9 @@ list(APPEND CO_SRC_LIST ${jump_asm_file})
 list(APPEND CO_SRC_LIST ${make_asm_file})
 
 if (UNIX)
+    add_library("${STATIC_T}" STATIC ${CO_SRC_LIST})
+    set_target_properties("${STATIC_T}" PROPERTIES OUTPUT_NAME "${TARGET}")
+
     install(TARGETS ${STATIC_T} LIBRARY DESTINATION "lib" ARCHIVE DESTINATION "lib")
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/libgo/ DESTINATION "include/libgo" FILES_MATCHING PATTERN "*.h")
         #PATTERN "windows" EXCLUDE

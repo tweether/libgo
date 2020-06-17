@@ -49,7 +49,7 @@ public:
         jump_fcontext(&ctx_, GetTlsContext(), 0);
     }
 
-    DLL_CLASS_DECL fcontext_t& GetTlsContext();
+    LIBGO_CLASS_DECL fcontext_t& GetTlsContext();
 
 private:
     fcontext_t ctx_;
