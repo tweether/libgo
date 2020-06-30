@@ -1,5 +1,8 @@
 #pragma once
 #include <exception>
+#include <stdint.h>
+#include "../common/cmake_config.h"
+#include "../common/dllExporter.h"
 
 namespace co
 {
@@ -99,10 +102,7 @@ public:
 
 public:
 #if ENABLE_DEBUGGER
-    ALWAYS_INLINE static TaskListener*& GetTaskListener() {
-        static TaskListener* task_listener = nullptr;
-        return task_listener;
-    }
+    LIBGO_CLASS_DECL static TaskListener*& GetTaskListener();
 
     static void SetTaskListener(TaskListener* listener) {
         GetTaskListener() = listener;
