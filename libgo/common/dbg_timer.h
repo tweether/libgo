@@ -23,7 +23,7 @@ struct DbgTimer {
 
         auto now = FastSteadyClock::now();
         if (now - prev_ > precision) {
-            costs_.push_back(std::pair<int, int>(line, std::chrono::duration_cast<std::chrono::microseconds>(now - prev_).count()));
+            costs_.push_back(std::pair<int, int>(line, (int)std::chrono::duration_cast<std::chrono::microseconds>(now - prev_).count()));
         }
         prev_ = now;
     }

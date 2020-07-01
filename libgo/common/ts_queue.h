@@ -424,7 +424,7 @@ public:
         tail_ = hook;
         hook->next = nullptr;
         hook->check_ = check_;
-        DebugPrint(dbg_suspend, "pushWithoutLock before this=0x%p size=%lu", (void*)this, count_);
+        DebugPrint(dbg_suspend, "pushWithoutLock before this=0x%p size=%zu", (void*)this, count_);
         ++ count_;
         if (refCount)
             IncrementRef(element);

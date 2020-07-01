@@ -39,7 +39,7 @@ public:
         : capacity_(capacity), closed_(false), dbg_mask_(dbg_all)
         , wq_(capacity ? capacity + 1 : (size_t)-1, NULL)
     {
-        DebugPrint(dbg_mask_ & dbg_channel, "[id=%ld] Channel init. capacity=%lu", this->getId(), capacity);
+        DebugPrint(dbg_mask_ & dbg_channel, "[id=%ld] Channel init. capacity=%zu", this->getId(), capacity);
     }
     
     // write

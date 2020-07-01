@@ -46,11 +46,11 @@ struct __go
     }
 
     template <typename Function>
-    ALWAYS_INLINE void operator-(Function const& f)
+    ALWAYS_INLINE uint64_t operator-(Function const& f)
     {
         if (!scheduler_) scheduler_ = Processer::GetCurrentScheduler();
         if (!scheduler_) scheduler_ = &Scheduler::getInstance();
-        scheduler_->CreateTask(f, opt_);
+        return scheduler_->CreateTask(f, opt_);
     }
 
     ALWAYS_INLINE __go& operator-(__go_option<opt_scheduler> const& opt)

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "../common/config.h"
 #include "../common/deque.h"
 #include "../common/spinlock.h"
@@ -31,7 +31,7 @@ public:
     static Scheduler* Create();
 
     // 创建一个协程
-    LIBGO_CLASS_DECL void CreateTask(TaskF const &fn, TaskOpt const &opt);
+    LIBGO_CLASS_DECL uint64_t CreateTask(TaskF const &fn, TaskOpt const &opt);
 
     // 当前是否处于协程中
     bool IsCoroutine();

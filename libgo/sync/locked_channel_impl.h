@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "../common/config.h"
 #include "channel_impl.h"
 #include "ringbuffer.h"
@@ -33,7 +33,7 @@ public:
         , q_(useRingBuffer ? capacity : 1)
     {
         wq_.setRelockAfterWait(false);
-        DebugPrint(dbg_mask_ & dbg_channel, "[id=%ld] Channel init. capacity=%lu", this->getId(), capacity);
+        DebugPrint(dbg_mask_ & dbg_channel, "[id=%ld] Channel init. capacity=%zu", this->getId(), capacity);
     }
 
     bool push(T const& t) {
@@ -132,7 +132,7 @@ public:
             if (pop(t)) {
                 if (Size() == capacity_ - 1) {
                     if (wq_.notify_one([&](T* p){ push(*p); })) {
-                        DebugPrint(dbg_channel, "[id=%ld] Pop Notify size=%lu.", this->getId(), Size());
+                        DebugPrint(dbg_channel, "[id=%ld] Pop Notify size=%zu.", this->getId(), Size());
                     }
                 }
                 DebugPrint(dbg_channel, "[id=%ld] Pop complete unqueued.", this->getId());

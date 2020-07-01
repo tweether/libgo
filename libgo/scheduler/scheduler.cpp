@@ -1,4 +1,4 @@
-﻿#include "scheduler.h"
+#include "scheduler.h"
 #include "../common/error.h"
 #include "../common/clock.h"
 #include <stdio.h>
@@ -75,8 +75,7 @@ Scheduler::~Scheduler()
     Stop();
 }
 
-void Scheduler::CreateTask(TaskF const& fn, TaskOpt const& opt)
-{
+uint64_t Scheduler::CreateTask(TaskF const& fn, TaskOpt const& opt) {
     Task* tk = new Task(fn, opt.stack_size_ ? opt.stack_size_ : CoroutineOptions::getInstance().stack_size);
 //    printf("new tk = %p  impl = %p\n", tk, tk->impl_);
     tk->SetDeleter(Deleter(&Scheduler::DeleteTask, this));
@@ -93,6 +92,7 @@ void Scheduler::CreateTask(TaskF const& fn, TaskOpt const& opt)
 #endif
 
     AddTask(tk);
+    return tk->id_;
 }
 
 void Scheduler::DeleteTask(RefObject* tk, void* arg)
