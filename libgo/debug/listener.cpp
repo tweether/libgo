@@ -1,4 +1,3 @@
-#pragma once
 #include "listener.h"
 
 #include "../common/cmake_config.h"

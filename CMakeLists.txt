@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8)
 
 ###################################################################################
 project(libgo)
@@ -104,8 +104,10 @@ if (NOT DISABLE_HOOK)
 	list(APPEND CO_SRC_LIST ${PROJECT_SOURCE_DIR}/libgo/netio/windows/xhook/xhook.cpp)
     endif()
 else()
-	include_directories(${PROJECT_SOURCE_DIR}/libgo/netio/windows)
-	aux_source_directory(${PROJECT_SOURCE_DIR}/libgo/context/fiber CO_SRC_LIST)
+    if(WIN32)
+	    include_directories(${PROJECT_SOURCE_DIR}/libgo/netio/windows)
+	    aux_source_directory(${PROJECT_SOURCE_DIR}/libgo/context/fiber CO_SRC_LIST)
+    endif()
     aux_source_directory(${PROJECT_SOURCE_DIR}/libgo/netio/disable_hook CO_SRC_LIST)
 endif()
 
