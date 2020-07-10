@@ -23,7 +23,7 @@ std::string CoDebugger::GetAllInfo()
     s += P("CurrentTaskYieldCount: %lu", GetCurrentTaskYieldCount());
     s += P("CurrentThreadID: %d", GetCurrentThreadID());
 #if defined(LIBGO_SYS_Unix)
-    s += P("ReactorThreadNumber: %d", Reactor::GetReactorThreadCount());
+    // s += P("ReactorThreadNumber: %d", Reactor::GetReactorThreadCount());
 #endif
     s += P("--------------------------------------------");
     s += P("Task Map:");
