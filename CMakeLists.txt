@@ -4,6 +4,7 @@
 project(libgo)
 
 enable_language(C ASM)
+include(${PROJECT_SOURCE_DIR}/vs_dir_proj.cmake)
 
 if (CMAKE_BUILD_TYPE)
 else()
@@ -118,9 +119,13 @@ set(SHARED_T "libgo_dynamic")
 
 list(APPEND CO_SRC_LIST ${jump_asm_file})
 list(APPEND CO_SRC_LIST ${make_asm_file})
+file(GLOB_RECURSE HEADER_LIST ${PROJECT_SOURCE_DIR}/libgo/*.h ${PROJECT_SOURCE_DIR}/libgo/*.inl)
+set(ALL_FILES ${HEADER_LIST} ${CO_SRC_LIST})
+message("ALL_FILES: ${ALL_FILES}")
+
 
 if (UNIX)
-    add_library("${STATIC_T}" STATIC ${CO_SRC_LIST})
+    add_library("${STATIC_T}" STATIC ${ALL_FILES})
     set_target_properties("${STATIC_T}" PROPERTIES OUTPUT_NAME "${TARGET}")
 
     install(TARGETS ${STATIC_T} LIBRARY DESTINATION "lib" ARCHIVE DESTINATION "lib")
@@ -130,7 +135,7 @@ if (UNIX)
     add_library("${STATIC_HOOK}" STATIC "${PROJECT_SOURCE_DIR}/libgo/netio/unix/static_hook/static_hook.cpp")
 
     if (BUILD_DYNAMIC)
-        add_library("${SHARED_T}" SHARED ${CO_SRC_LIST})
+        add_library("${SHARED_T}" SHARED ${ALL_FILES})
         set_target_properties("${SHARED_T}" PROPERTIES OUTPUT_NAME "${TARGET}")
         target_link_libraries("${SHARED_T}" ${LINK_LIBS} -ldl)
         install(TARGETS ${SHARED_T} LIBRARY DESTINATION "lib" ARCHIVE DESTINATION "lib")
@@ -166,7 +171,7 @@ if (UNIX)
     )
 
 elseif (WIN32)
-    add_library("${SHARED_T}" SHARED ${CO_SRC_LIST})
+    add_library("${SHARED_T}" SHARED ${ALL_FILES})
     TARGET_LINK_LIBRARIES("${SHARED_T}" ws2_32)
     set_target_properties("${SHARED_T}" PROPERTIES OUTPUT_NAME "${TARGET}")
     set_target_properties("${SHARED_T}" PROPERTIES COMPILE_FLAGS "/wd4819 /wd4267")
