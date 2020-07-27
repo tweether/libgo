@@ -1,10 +1,9 @@
-﻿cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8)
 
 ###################################################################################
 project(libgo)
 
 enable_language(C ASM)
-include(${PROJECT_SOURCE_DIR}/vs_dir_proj.cmake)
 
 if (CMAKE_BUILD_TYPE)
 else()
