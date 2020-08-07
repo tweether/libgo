@@ -46,6 +46,11 @@ static int InitOnExit() {
     return 0;
 }
 
+Scheduler::TimerType& Scheduler::GetTimer()
+{
+	return timer_ ? *timer_ : StaticGetTimer();
+}
+
 bool& Scheduler::IsExiting() {
     static bool exiting = false;
     return exiting;
@@ -163,6 +168,11 @@ void Scheduler::goStart(int minThreadNumber, int maxThreadNumber)
 {
     std::thread([=]{ this->Start(minThreadNumber, maxThreadNumber); }).detach();
 }
+
+
+static Scheduler::TimerType* ptimer = nullptr;
+std::thread* pt = nullptr;
+
 void Scheduler::Stop()
 {
     std::unique_lock<std::mutex> lock(stopMtx_);
@@ -184,6 +194,19 @@ void Scheduler::Stop()
 
     if (timerThread_.joinable())
         timerThread_.join();
+
+	if (ptimer)
+	{
+		ptimer->Stop();
+		if (pt->joinable())
+		{
+			pt->join();
+			delete pt;
+			pt = nullptr;
+		}
+		delete ptimer;
+		ptimer = nullptr;
+	}
 }
 void Scheduler::UseAloneTimerThread()
 {
@@ -205,18 +228,11 @@ void Scheduler::UseAloneTimerThread()
 }
 
 static Scheduler::TimerType& staticGetTimer() {
-    static Scheduler::TimerType *ptimer = new Scheduler::TimerType;
-    std::thread *pt = new std::thread([=]{ 
+    ptimer = new Scheduler::TimerType;
+    pt = new std::thread([=]{ 
             DebugPrint(dbg_thread, "Start global timer thread id: %lu", NativeThreadID());
             ptimer->ThreadRun();
             });
-    std::unique_lock<std::mutex> lock(ExitListMtx());
-    auto vec = ExitList();
-    vec->push_back([=] {
-            ptimer->Stop();
-            if (pt->joinable())
-                pt->join();
-        });
     return *ptimer;
 }
 

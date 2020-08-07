@@ -71,7 +71,7 @@ public:
     typedef Timer<std::function<void()>> TimerType;
 
 public:
-    inline TimerType & GetTimer() { return timer_ ? *timer_ : StaticGetTimer(); }
+    LIBGO_CLASS_DECL TimerType & GetTimer();
 
     inline bool IsStop() { return stop_; }
 
