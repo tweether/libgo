@@ -230,6 +230,10 @@ void Timer<F>::ThreadRun()
 template <typename F>
 void Timer<F>::Stop()
 {
+    if (!stop_)
+    {
+        return;
+    }
     stop_ = true;
 
     std::unique_lock<std::mutex> lock(quitMtx_);
