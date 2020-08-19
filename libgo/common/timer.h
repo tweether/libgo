@@ -234,9 +234,9 @@ void Timer<F>::Stop()
     {
         return;
     }
-    stop_ = true;
 
-    std::unique_lock<std::mutex> lock(quitMtx_);
+	std::unique_lock<std::mutex> lock(quitMtx_);
+	stop_ = true;
     quit_.wait(lock);
 }
 

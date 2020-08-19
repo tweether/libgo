@@ -57,7 +57,7 @@ public:
     void UseAloneTimerThread();
 
     // 当前调度器中的协程数量
-    uint32_t TaskCount();
+    LIBGO_CLASS_DECL uint32_t TaskCount();
 
     // 当前协程ID, ID从1开始（不在协程中则返回0）
     uint64_t GetCurrentTaskID();
