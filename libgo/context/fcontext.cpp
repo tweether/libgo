@@ -20,7 +20,7 @@ namespace co
     }
     int& StackTraits::GetProtectStackPageSize()
     {
-        static int size = 0;
+        static int size = 1;
         return size;
     }
 #if defined(LIBGO_SYS_Unix)
