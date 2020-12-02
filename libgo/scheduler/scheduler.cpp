@@ -159,7 +159,7 @@ void Scheduler::Start(int minThreadNumber, int maxThreadNumber)
         DebugPrint(dbg_scheduler, "---> No DispatcherThread");
     }
 
-    std::thread(FastSteadyClock::ThreadRun).detach();
+    // std::thread(FastSteadyClock::ThreadRun).detach();
 
     DebugPrint(dbg_scheduler, "Scheduler::Start minThreadNumber_=%d, maxThreadNumber_=%d", minThreadNumber_, maxThreadNumber_);
     mainProc->Process();
