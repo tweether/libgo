@@ -119,13 +119,14 @@ private:
     // @mainloop: 是否在触发线程, 如果为true, 则无需检验是否需要加入completeSlot_.
     void Dispatch(Element * element, bool mainloop);
 
-//private:
-public:
-    volatile bool stop_ = false;
+private:
+//public:
+    volatile short stop_ = false;
+    volatile int check_count = 0;
+    int maxPoolSize_ = 0;
     std::mutex quitMtx_;
     std::condition_variable_any quit_;
 
-    int maxPoolSize_ = 0;
     Pool pool_;
 
     // 起始时间
@@ -402,8 +403,8 @@ void Timer<F>::Trigger(Slot & slot)
     for (Element & element : slist) {
         slist.erase(&element);
         DebugPrint(dbg_timer, "[id=%ld]Timer trigger element=%ld precision= %d us",
-                this->getId(), element.getId(),
-                (int)std::chrono::duration_cast<std::chrono::microseconds>(FastSteadyClock::now() - element.tp_).count());
+                   this->getId(), element.getId(),
+                   (int)std::chrono::duration_cast<std::chrono::microseconds>(FastSteadyClock::now() - element.tp_).count());
         element.call();
         element.DecrementRef();
     }
