@@ -110,6 +110,7 @@ static const uint64_t dbg_debugger          = 0x1 << 14;
 static const uint64_t dbg_signal            = 0x1 << 15;
 static const uint64_t dbg_channel           = 0x1 << 16;
 static const uint64_t dbg_thread            = 0x1 << 17;
+static const uint64_t dbg_selfinfo          = 0x1 << 18;
 static const uint64_t dbg_sys_max           = dbg_debugger;
 ///-------------------
 
