@@ -53,7 +53,9 @@ private:
 
         bool isWaiting;
 
-        Entry() : value(), nativeThreadEntry(nullptr), isWaiting(true) {}
+        uint32_t id;
+
+        Entry() : value(), nativeThreadEntry(nullptr), isWaiting(true), id(generateId()) {}
         ~Entry() {
             if (nativeThreadEntry) {
                 delete nativeThreadEntry;
@@ -61,13 +63,23 @@ private:
             }
         }
 
+        uint32_t generateId() {
+            static uint32_t id = 0;
+            if (id < 0xffffffff) {
+                return ++id;
+            } else {
+                id = 0;
+                return 0xffffffff;
+            }
+        }
+
         bool notify(Functor const func) {
-            DebugPrint(dbg_channel, "cv::notify ->");
+            DebugPrint(dbg_channel, "cv::notify[%u] ->", this->id);
             for (;;) {
                 int flag = suspendFlags.load(std::memory_order_relaxed);
 
                 if (flag & eSuspendFlag::suspend_begin) {
-                    DebugPrint(dbg_channel, "cv::notify -> flag = suspend_begin");
+                    DebugPrint(dbg_channel, "cv::notify[%u] -> flag = suspend_begin", this->id);
                     // 已在挂起中
                     while ((suspendFlags.load(std::memory_order_acquire) & eSuspendFlag::suspend_end) == 0);
                     break;
@@ -78,14 +90,14 @@ private:
                             flag | eSuspendFlag::wakeup_begin,
                             std::memory_order_acq_rel, std::memory_order_relaxed))
                 {
-                    DebugPrint(dbg_channel, "cv::notify -> wakeup complete");
+                    DebugPrint(dbg_channel, "cv::notify[%u] -> wakeup complete", this->id);
 
                     flag |= eSuspendFlag::wakeup_begin | eSuspendFlag::wakeup_end;
 
                     if (!noTimeoutLock.try_lock()) {
                         assert(false);
                         suspendFlags.store(flag, std::memory_order_release);
-                        DebugPrint(dbg_channel, "cv::notify -> wakeup_end");
+                        DebugPrint(dbg_channel, "cv::notify[%u] -> wakeup_end", this->id);
                         return false;;
                     }
 
@@ -93,23 +105,26 @@ private:
                         func(value);
 
                     suspendFlags.store(flag, std::memory_order_release);
-                    DebugPrint(dbg_channel, "cv::notify -> wakeup_end");
+                    DebugPrint(dbg_channel, "cv::notify[%u] -> wakeup_end", this->id);
                     return true;
                 }
             }
 
-            DebugPrint(dbg_channel, "cv::notify -> wakeup");
+            DebugPrint(dbg_channel, "cv::notify[%u] -> wakeup", this->id);
 
             // coroutine
             if (!nativeThreadEntry) {
-                if (!noTimeoutLock.try_lock())
+                if (!noTimeoutLock.try_lock()) {
+                    DebugPrint(dbg_channel, "cv::notify[%u] failed to try lock timeout lock.", this->id);
                     return false;;
+                }
 
                 if (Processer::Wakeup(coroEntry, [&]{ if (func) func(value); })) {
-//                    DebugPrint(dbg_channel, "notify %d.", value.id);
+                    DebugPrint(dbg_channel, "cv::notify[%u] wake up success.", this->id);
                     return true;
                 }
 
+                DebugPrint(dbg_channel, "cv::notify[%u] wake up failed.", this->id);
                 return false;;
             }
 
@@ -292,7 +307,7 @@ private:
 
         AutoLock<LockType> autoLock(lock, relockAfterWait_);
 
-        DebugPrint(dbg_channel, "cv::wait ->");
+        DebugPrint(dbg_channel, "cv::wait[%u] ->", entry->id);
 
         int spinA = 0;
         int spinB = 0;
@@ -300,12 +315,14 @@ private:
         for (;;) {
             flag = entry->suspendFlags.load(std::memory_order_relaxed);
 
+            DebugPrint(dbg_channel, "cv::wait[%u] -> flag %d", entry->id, flag);
             if (flag & eSuspendFlag::wakeup_begin) {
-                DebugPrint(dbg_channel, "cv::wait -> flag = wakeup_begin");
+                DebugPrint(dbg_channel, "cv::wait[%u] -> flag = wakeup_begin", entry->id);
                 // 已在被唤醒
                 while ((entry->suspendFlags.load(std::memory_order_acquire) & eSuspendFlag::wakeup_end) == 0);
                 return cv_status::no_timeout;
             } else {
+                DebugPrint(dbg_channel, "cv::wait[%u] -> start spin", entry->id);
                 // 无人唤醒, 先自旋等一等再真正挂起
                 if (++spinA <= 0) {
                     continue;
@@ -314,46 +331,60 @@ private:
                 if (Processer::IsCoroutine()) {
 //                    if (++spinB <= 1 << (4 - (std::min)((size_t)4, qSize))) {
                     if (++spinB <= 1) {
+                        DebugPrint(dbg_channel, "cv::wait[%u] -> coroutine yield", entry->id);
                         Processer::StaticCoYield();
                         continue;
                     }
                 } else {
                     if (++spinB <= 8) {
+                        DebugPrint(dbg_channel, "cv::wait[%u] -> thread yield", entry->id);
                         std::this_thread::yield();
                         continue;
                     }
                 }
+                DebugPrint(dbg_channel, "cv::wait[%u] -> end spin", entry->id);
             }
 
             if (entry->suspendFlags.compare_exchange_weak(flag,
                         flag | eSuspendFlag::suspend_begin,
-                        std::memory_order_acq_rel, std::memory_order_relaxed))
+                        std::memory_order_acq_rel, std::memory_order_relaxed)) {
+                DebugPrint(dbg_channel, "cv::wait[%u] -> break for", entry->id);
                 break;
+            }
         }
 
         flag |= eSuspendFlag::suspend_begin | eSuspendFlag::suspend_end;
 
-        DebugPrint(dbg_channel, "cv::wait -> suspend_begin");
+        cv_status result;
+        DebugPrint(dbg_channel, "cv::wait[%u] -> suspend_begin", entry->id);
         if (Processer::IsCoroutine()) {
             // 协程
             coroSuspend(entry->coroEntry, time);
             entry->suspendFlags.store(flag, std::memory_order_release);   // release
-            DebugPrint(dbg_channel, "cv::wait -> suspend_end");
+            DebugPrint(dbg_channel, "cv::wait[%u] -> suspend_end", entry->id);
             Processer::StaticCoYield();
-            return entry->noTimeoutLock.try_lock() ?
+            result = entry->noTimeoutLock.try_lock() ?
                 cv_status::timeout :
                 cv_status::no_timeout;
+            DebugPrint(dbg_channel, "cv::wait[%u] -> wakeup %d", entry->id, (int)result);
         } else {
             // 原生线程
             entry->nativeThreadEntry = new NativeThreadEntry;
             std::unique_lock<std::mutex> threadLock(entry->nativeThreadEntry->mtx);
             entry->suspendFlags.store(flag, std::memory_order_release);   // release
-            DebugPrint(dbg_channel, "cv::wait -> suspend_end");
+            DebugPrint(dbg_channel, "cv::wait[%u] -> suspend_end", entry->id);
             threadSuspend(entry->nativeThreadEntry->cv, threadLock, time);
-            return entry->noTimeoutLock.try_lock() ?
+            result = entry->noTimeoutLock.try_lock() ?
                 cv_status::timeout :
                 cv_status::no_timeout;
+            DebugPrint(dbg_channel, "cv::wait[%u] -> wakeup %d", entry->id, (int)result);
         }
+
+        if (result == cv_status::timeout) {
+            queue_.remove(entry);
+        }
+
+        return result;
     }
 
     static bool isValid(Entry* entry) {

@@ -139,6 +139,39 @@ public:
         if (!count_) return false;
         return pop(ptr);
     }
+
+    bool remove(T* ptr)
+    {
+        std::unique_lock<lock_t> lock(lock_);
+        if (head_ == tail_) return false;
+
+        WaitQueueHook *prev = head_, *cur = head_->next;
+        while (cur)
+        {
+            if (cur == ptr)
+            {
+                if (ptr == tail_) tail_ = prev;
+                if (ptr == check_) check_ = check_->next;
+                prev->next = cur->next;
+                static_cast<T*>(cur)->DecrementRef();
+
+                // for (;;) {
+                //     if (!pos_ || !posFunctor_) break;
+
+                //     bool ok = posFunctor_(static_cast<T*>(pos_));
+                //     pos_ = pos_->next;
+                //     if (ok) break;
+                // }
+
+                --count_;
+                return true;
+            }
+            prev = cur;
+            cur = cur->next;
+        }
+
+        return false;
+    }
 };
 
 } // namespace co
