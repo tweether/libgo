@@ -120,12 +120,12 @@ list(APPEND CO_SRC_LIST ${jump_asm_file})
 list(APPEND CO_SRC_LIST ${make_asm_file})
 file(GLOB_RECURSE HEADER_LIST ${PROJECT_SOURCE_DIR}/libgo/*.h ${PROJECT_SOURCE_DIR}/libgo/*.inl)
 set(ALL_FILES ${HEADER_LIST} ${CO_SRC_LIST})
-message("ALL_FILES: ${ALL_FILES}")
 
 
 if (UNIX)
     add_library("${STATIC_T}" STATIC ${ALL_FILES})
     set_target_properties("${STATIC_T}" PROPERTIES OUTPUT_NAME "${TARGET}")
+    target_link_libraries("${STATIC_T}" -ldl)
 
     install(TARGETS ${STATIC_T} LIBRARY DESTINATION "lib" ARCHIVE DESTINATION "lib")
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/libgo/ DESTINATION "include/libgo" FILES_MATCHING PATTERN "*.h")
@@ -184,6 +184,10 @@ elseif (WIN32)
     endif()
 endif()
 
-target_include_directories(${SHARED_T} PUBLIC ${CMAKE_SOURCE_DIR}/libgo)
-
 #ADD_SUBDIRECTORY(test)
+
+option(ENABLE_BASE_TEST "Enable base test for libgo" OFF)
+
+if (ENABLE_BASE_TEST)
+    add_subdirectory(base_test)
+endif()
