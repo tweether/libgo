@@ -124,6 +124,7 @@ private:
                     return true;
                 }
 
+                noTimeoutLock.unlock();
                 DebugPrint(dbg_channel, "cv::notify[%u] wake up failed.", this->id);
                 return false;;
             }

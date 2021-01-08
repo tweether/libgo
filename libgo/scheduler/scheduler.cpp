@@ -195,18 +195,18 @@ void Scheduler::Stop()
     if (timerThread_.joinable())
         timerThread_.join();
 
-	if (ptimer)
-	{
-		ptimer->Stop();
-		if (pt->joinable())
-		{
-			pt->join();
-			delete pt;
-			pt = nullptr;
-		}
-		delete ptimer;
-		ptimer = nullptr;
-	}
+    if (ptimer)
+    {
+        ptimer->Stop();
+        if (pt->joinable())
+        {
+            pt->join();
+            delete pt;
+            pt = nullptr;
+        }
+        delete ptimer;
+        ptimer = nullptr;
+    }
 }
 void Scheduler::UseAloneTimerThread()
 {

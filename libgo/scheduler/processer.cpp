@@ -351,7 +351,10 @@ bool Processer::IsExpire(SuspendEntry const& entry)
 bool Processer::Wakeup(SuspendEntry const& entry, std::function<void()> const& functor)
 {
     IncursivePtr<Task> tkPtr = entry.tk_.lock();
-    if (!tkPtr) return false;
+    if (!tkPtr) {
+        DebugPrint(dbg_suspend, "Processer wakeup. Entry wake up failed because lock tk.lock() failed, id(%lu)", entry.id_);
+        return false;
+    }
 
     auto proc = tkPtr->proc_;
     return proc ? proc->WakeupBySelf(tkPtr, entry.id_, functor) : false;
@@ -361,10 +364,20 @@ bool Processer::WakeupBySelf(IncursivePtr<Task> const& tkPtr, uint64_t id, std::
 {
     Task* tk = tkPtr.get();
 
-    if (id != TaskRefSuspendId(tk)) return false;
+    if (id != TaskRefSuspendId(tk)) {
+        DebugPrint(dbg_suspend,
+            "tk(%s) Wakeup. Task wake up failed because id not equal tak referenced, id(%lu) ref(%lu)",
+            tk->DebugInfo(), id, TaskRefSuspendId(tk).load());
+        return false;
+    }
 
     std::unique_lock<TaskQueue::lock_t> lock(waitQueue_.LockRef());
-    if (id != TaskRefSuspendId(tk)) return false;
+    if (id != TaskRefSuspendId(tk)) {
+        DebugPrint(dbg_suspend,
+            "tk(%s) Wakeup. Task wake up failed because id not equal tak referenced, id(%lu) ref(%lu)",
+            tk->DebugInfo(), id, TaskRefSuspendId(tk).load());
+        return false;
+    }
     ++ TaskRefSuspendId(tk);
     if (functor)
         functor();
